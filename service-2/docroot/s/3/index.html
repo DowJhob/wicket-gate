@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>barcode scanner wasm</title>
+	<style>
+	</style>
+</head>
+<body>
+<div>
+	<p id="label" style ="color: red; font-size: 4em"></p >
+	<video id="live" muted autoplay playsinline ></video>
+	<button id="torch" style ="color: red; font-size: 4em">Torch</button>
+	<canvas id="canvas"></canvas>
+</div>
+</body>
+
+<!-- Import the javascript bundle produced by Emscripten-->
+<script src="/s/3/zxing.js"></script>
+
+<!-- The main 'application code' tying it all together -->
+<script>
+
+	
+	var track;
+	var Sstream;
+	
+	const btn = document.getElementById("torch");
+	btn.addEventListener('click', function(){
+		let track = document.getElementById("live").srcObject.getVideoTracks()[0];
+		track.applyConstraints({advanced: [{torch: true}]});
+		this.innerText="Torch On";
+	});
+
+// Execute the application code when the WebAssembly module is ready.
+	let mod = Module.onRuntimeInitialized = async _ => {
+		var p = null;
+		var imageWidth = 1280;
+		var imageHeight = 720;
+		// wrap all C functions using cwrap. Note that we have to provide crwap with the function signature.
+		const api = {
+				_resize: Module.cwrap('_resize', '', ['number', 'number', 'number']),
+				_decode_any: Module.cwrap('_decode_any', '', 'number', ['number', 'number'])
+			};
+			
+		decodePtr = mod.Runtime.addFunction(decodeCallback);
+		
+	//	this.p = api.create_buffer(imageWidth+50, imageHeight+50);
+		const label2 = document.getElementById("label");
+		const video = document.getElementById("live");
+		const canvas = document.getElementById("canvas");
+		const ctx = canvas.getContext('2d');
+		//ctx.filter = "saturate(0%)";
+		
+//ctx.globalCompositeOperation = 'luminosity';
+		var count = 0;
+		let constraints = {audio: false,
+							video: {height: {ideal: imageHeight},width:{ideal: imageWidth},facingMode: "environment",frameRate: 30},
+							advanced : [{ focusMode : "continuous" },{whiteBalanceMode:"continuous"},{exposureMode:"continuous"}//,{fillLightMode: "flash"//,{:},{:},{:},{:}
+							]
+							};
+		navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+				try {
+					video.srcObject = stream;
+				} catch (error) {
+					video.src = URL.createObjectURL(stream);
+				}
+				this.track = stream.getVideoTracks()[0];
+				const actualSettings = this.track.getSettings();
+			//	const { width, height } = actualSettings;
+				console.log(actualSettings.width, actualSettings.height)
+				canvas.width = actualSettings.width;
+				canvas.height = actualSettings.height;
+				video.play();
+
+				detectSymbols();
+				}).catch((e) => {
+					throw e
+				});
+
+
+	
+	var count = 0;
+	var decodeCallback = function (ptr, len, resultIndex, resultCount)
+	{
+		var result = new Uint8Array(ZXing.HEAPU8.buffer, ptr, len);
+		//  console.log(resultCount);
+		var res_str = String.fromCharCode.apply(null, result);
+		//barcode_result.textContent =res_str;
+		
+		label2.innerHTML =res_str;
+		//    mobileCanvas.style.display = 'block';
+		//count++;
+	
+		//var mode = 1;
+		//if ( modeMap.has(res_str) )
+		//	mode = modeMap.get(res_str) + 1;
+		//modeMap.set(res_str, mode);
+	//	if (count >10)
+		{
+		//	count = 0;
+		//	barcode_result.textContent = getMODE();
+		//	modeMap.clear();
+		}
+	}
+	
+	
+		function detectSymbols() {
+			// grab a frame from the media source and draw it to the canvas
+			ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+			// get the image data from the canvas
+			const image = ctx.getImageData(0, 0, canvas.width, canvas.height);
+			// convert the image data to grayscale 
+			//const grayData = [];
+			//const d = image.data;
+			//for (var i = 0, j = 0; i < d.length; i += 2, j++) {	
+			
+			//if (d[i] != d[i+1])
+			//	label2.innerHTML = 'hop';
+			
+			//	var brightness = (3*d[i]+4*d[i++]+d[i++])>>>3;
+			//	grayData[j] = brightness;
+				//grayData[j] = (d[i] * 66 + d[i + 1] * 129 + d[i + 2] * 25 + 4096) >> 8;
+			//}
+			const p = api.create_buffer(image.width, image.height);
+		//	p[j] = brightness;
+			Module.HEAP8.set(image.data, p);
+			api._decode_any(p, image.width, image.height)
+			setTimeout(detectSymbols, 50);
+		}
+
+		function drawPoly(ctx, poly)
+		{
+		// drawPoly expects a flat array of coordinates forming a polygon (e.g. [x1,y1,x2,y2,... etc])
+		ctx.beginPath();
+		ctx.moveTo(poly[0], poly[1]);
+		for (item = 2; item < poly.length - 1; item += 2)
+		{
+			ctx.lineTo(poly[item], poly[item + 1])
+		}
+
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = "#FF0000";
+		ctx.closePath();
+		ctx.stroke();
+		}
+
+	// render the string contained in the barcode as text on the canvas
+	function renderData(ctx, data, x, y) {
+		ctx.font = "3em Arial";
+		ctx.fillStyle = "red";
+		ctx.fillText(data, x, y);
+	}
+
+	// set the function that should be called whenever a barcode is detected
+	Module['processResult'] = (symbol, data, polygon) => {
+		//console.log("Data liberated from WASM heap:")
+		//console.log(symbol)
+		//console.log(data)
+		//console.log(polygon)
+
+			
+	label2.innerHTML = symbol + ' ' + data;
+						
+		 //draw the bounding polygon
+		//drawPoly(ctx, polygon)
+
+		 //render the data at the first coordinate of the polygon
+	renderData(ctx, data, polygon[0], polygon[1] - 10)
+	}
+
+}
+
+</script>
+
+</html>

@@ -1,0 +1,43 @@
+	<html>
+	<head>
+	<meta charset="UTF-8">
+	<title>barcode scanner wasm</title>
+	<style>
+		br{ font-size: 150%;
+			align: center;}
+		input{font-size: 150%;
+			align: center;}
+		form{font-size: 150%;
+			text-align: center;}
+	</style>
+</head>
+		<body>
+		<script src="/js/sha1.js" type="text/javascript" charset="utf-8"></script>
+			<form  id="formElem" method='POST' action='/login'>
+				<br> Please log in:</br>
+				<br> Name:  <input type='text' name='username'>
+				<br> Password: <input id="pass" type='password' name='password'>
+				<br> <input id="sbmt" type='submit'>
+			</form>
+		</body>
+		<script>
+			//const pass = document.getElementById('pass');
+			formElem.sbmt.addEventListener('click', updateValue);
+			function updateValue(){
+				formElem.pass.value = hex_sha1(formElem.pass.value);
+			}
+			
+			
+	
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+		</script>
+	</html>

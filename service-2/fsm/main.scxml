@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" binding="early" xmlns:qt="http://www.qt.io/2015/02/scxml-ext" name="main" qt:editorversion="6.0.2">
+    <state id="Normal">
+        <qt:editorinfo geometry="1028.73;252.80;-47.70;-36.26;120;100" scenegeometry="1028.73;252.80;981.03;216.54;120;100"/>
+        <invoke src="locker.scxml"/>
+    </state>
+    <state id="StandAlone">
+        <qt:editorinfo geometry="444.39;458.65;-60;-50;120;100" scenegeometry="444.39;458.65;384.39;408.65;120;100"/>
+        <invoke src="checker.scxml"/>
+    </state>
+</scxml>

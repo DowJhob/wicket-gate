@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Prometeus</title>
+		<style>
+			button {border: 1px solid black; border-radius: 5px; text-align: center;font-size: 150%; box-shadow: 2px 2px 0;  transform: translate(0px, 0px); transition: transform 0.1s ease, border 0.1s;}
+			button:active {				
+				box-shadow: 0px 0px 0px;
+				transform: translate(2px, 2px);
+				transition: transform 0.1s ease;				
+			}
+			.b-orng30 {background: LightSalmon; width: 30%;}
+			.b-orng50 {background: LightSalmon; width: 50%;}
+			.b-grn30 {background: lightgreen; width: 30%;}
+			.b-grn50 {background: lightgreen; width: 50%;}
+			td {border-radius: 5px; text-align: right;}
+			th {border: 3px solid black; border-radius: 5px;}
+
+			table{
+				margin-left: auto;
+				margin-right: auto;
+				align: center;
+			}
+			.enter-ani {
+				 background: lightgreen;
+				 border-radius: 5px;
+				 border: 3px solid green;
+				 animation: enter 800ms;
+			}
+
+			@keyframes enter {
+				  0% { background: -webkit-linear-gradient(left, #00ff00,#d3d3d3 10%); }
+				 16% { background: -webkit-linear-gradient(left, #d3d3d3  0%,#00ff00  10%,#d3d3d3  20%); }
+				 32% { background: -webkit-linear-gradient(left, #d3d3d3 20%,#00ff00  30%,#d3d3d3  40%); }
+				 48% { background: -webkit-linear-gradient(left, #d3d3d3 40%,#00ff00  50%,#d3d3d3  60%); }
+				 64% { background: -webkit-linear-gradient(left, #d3d3d3 60%,#00ff00  70%,#d3d3d3  80%); }
+				 80% { background: -webkit-linear-gradient(left, #d3d3d3 80%,#00ff00  90%,#d3d3d3 100%); }
+				 96% { background: -webkit-linear-gradient(left, #d3d3d3 90%,#00ff00 100%); }
+				100% { background: #00ff00; }
+			}
+			.exit_ani {
+				 background: #ff974d;
+				 border-radius: 5px;
+				 border: 3px solid #ff974d;
+				 animation: exit 800ms;
+			}
+
+			@keyframes exit {
+				0% { background: -webkit-linear-gradient(right, #ff974d,#d3d3d3 10%); }
+				16% { background: -webkit-linear-gradient(right, #d3d3d3 0%,#ff974d 10%,#d3d3d3 20%); }
+				32% { background: -webkit-linear-gradient(right, #d3d3d3 20%,#ff974d 30%,#d3d3d3 40%); }
+				48% { background: -webkit-linear-gradient(right, #d3d3d3 40%,#ff974d 50%,#d3d3d3 60%); }
+				64% { background: -webkit-linear-gradient(right, #d3d3d3 60%,#ff974d 70%,#d3d3d3 80%); }
+				80% { background: -webkit-linear-gradient(right, #d3d3d3 80%,#ff974d 90%,#d3d3d3 100%); }
+				96% { background: -webkit-linear-gradient(right, #d3d3d3 90%,#ff974d 100%); }
+				100% { background: #ff974d; }
+			}
+
+			.drop{
+				background: #ff974d;
+				 border-radius: 5px;
+				 border: 3px solid #ff974d;
+				 animation: dropp 800ms;
+			}
+			@keyframes dropp {
+				0% { background: #ff974d; }
+				20% { background: #d3d3d3; }
+				40% { background: #ff974d; }
+				60% { background: #d3d3d3; }
+				80% { background: #ff974d; }
+				100% { background: #d3d3d3; }
+			}
+			
+			.td-black{
+				border: 1px solid black;
+			}
+			.td-red{
+				border: 3px solid red;
+			}
+			.td-green{
+				border: 3px solid green;
+			}
+			
+			.td-orange
+			{
+				border: 3px solid orange;
+			}
+			
+			.tabs {
+				margin-left: auto;
+				margin-right: auto;
+				max-width: 1100px;
+			}
+			.tabs__nav {
+				font-size: 150%;
+				display: flex;
+				flex-wrap: wrap;
+				list-style-type: none;
+				background: #f8f8f8;
+				margin: 0;
+			}
+			.tabs__link {
+				padding: 0.5rem 0.75rem;
+				text-decoration: none;
+				color: black;
+				text-align: center;
+				flex-shrink: 0;
+				flex-grow: 1;
+
+				border: 3px solid lightgray;
+				border-style: ridge;
+				border-bottom: 3px solid black;
+				border-radius: 5px 5px 0px 0px;
+			}
+			.tabs__link_active {
+				background: lightgray;
+				cursor: default;
+				
+				border: 3px solid black;
+				border-style: ridge;
+				border-bottom: none;
+				border-radius: 5px 5px 0px 0px;
+
+			}
+			.tabs__link:not(.tabs__link_active):hover,
+			.tabs__link:not(.tabs__link_active):focus {
+				background-color: #efefef;
+			}
+			.tabs__content {
+				padding: 1rem;
+				margin-right: auto;
+				background: lightgray;
+				border: 3px solid black;
+				border-style: ridge;
+				border-top: none;
+				border-radius: 0px 0px 5px 5px;
+			}
+			.tabs__pane {
+				display: none;
+			}
+			.tabs__pane_show {
+				display: block;
+			}
+			* {
+				margin: 0;
+				padding: 0;
+			}
+			html, body {
+				height: 100%;
+			}
+			.wrapper {
+				display: flex;
+				flex-direction: column;
+				min-height: 100%;
+			}
+			.content {
+				flex: 1 0 auto;
+			}
+			.footer {
+				flex: 0 0 auto;
+				text-align: center;
+			}
+			.ring-1 {
+				width: 20px;
+				height: 20px;
+				margin: 0 auto;
+				padding: 15px;
+				border: 5px dashed #4b9cdb;
+				border-radius: 100%;
+			}
+			.load-4 .ring-1 {
+				animation: loadingD 1.5s 0s linear infinite;
+				animation-play-state:paused;
+			}
+			@keyframes loadingD {
+				0 { transform: rotate(0deg); }
+				20% { transform: rotate(72deg); }
+				40% { transform: rotate(144deg); }
+				60% { transform: rotate(216deg); }
+				80% { transform: rotate(288deg); }
+				100% { transform: rotate(360deg); }
+			}
+			br {
+				font-size: 150%;
+				align: center;
+			}
+			input{
+				font-size: 150%;
+				align: center;
+			}
+			form{font-size: 150%;
+			text-align: center;}
+			
+			.log {
+				background: lightgray;
+				cursor: default;
+				border: 3px solid black;
+				border-style: ridge;
+				overflow: scroll; 
+				max-height:200px; 
+				min-height:200px;
+				border-radius: 5px 5px 5px 5px;
+
+			}
+			
+			
+			.context-menu
+			{
+				position: absolute;
+				left: 0;
+				top: 0;
+				min-height: 50px;
+				min-width: 150px;
+				background-color: gray;
+				display: none;
+				z-index: 105;
+			}
+			.context-menu.active
+			{
+				display: block;
+			}
+			.context-menu li
+			{
+				cursor: pointer;
+				color: white;
+				padding: 2px;
+				font-size: 14px;
+			}
+			.context-menu li:hover
+			{
+				background-color: #ababab;
+				color: #333;
+			}
+			.context-menu li:first-child 
+			{
+				list-style: none;
+				font-weight: 700;
+				background-color: #aaa;
+				color: #111;
+				border: 1px solid white;
+				text-align: center;
+			}
+			.context-menu li:first-child:hover
+			{
+				background-color: #aaa;
+				cursor: auto;
+			}
+			tr.active {background-color: #aca; }
+
+		</style>
+	</head>
+	
+	<body>
+		<div class="wrapper">
+			<div class="content">
+				<div>
+					<div align="center">
+						<button id="ds_off" onclick="butt_handle(id)" class="b-orng30">Выключить проверку двойного прохода</button>
+						<button id="ds_on" onclick="butt_handle(id)" class="b-grn30">Включить проверку двойного прохода</button>
+					</div>
+					<div align="center">
+						<button id="ironButton" onclick="butt_handle(id)" class="b-orng30">Режим прохода по любому ШК</button>
+						<button id="nrmlButton" onclick="butt_handle(id)" class="b-grn30">Установить нормальный режим</button>
+                                        </div>
+                                        <div align="center">
+                                                <button id="resetCounters" onclick="butt_handle(id)" class="b-orng30">Сброс счетчиков</button>
+                                                <button id="ds_clear" onclick="butt_handle(id)" class="b-grn30">Очистить контейнер двойного прохода</button>
+                                        </div>
+				</div>
+				<div >
+					<table>
+						<tr>
+							<th style ="min-width:40%"><div class="load-4"><div id ="connection" class="ring-1"></div></div></th>
+							<th style ="border:none;min-width:40%"></th>
+							<th style ="min-width:18%">Зрителей в зале</th>
+							<th style ="min-width:8%" id = "current_count">0</th>
+							<th style ="min-width:18%">Зрителей посетило</th>
+							<th style ="min-width:8%" id = "total_count">0</th>
+						</tr>
+					</table>
+				</div>
+				<div class="tabs">
+					<div id = "tabs__nav_id" class="tabs__nav"></div>
+					<div id = "tabs__content_id" class="tabs__content"></div>
+				</div>
+			</div>
+			<div class="footer">
+				<footer>
+					<div align="center" class="log tabs" id = "log">
+					</div>
+					<form method='POST' action='/check-barcode'> Проверка штрихкода:
+						<br>Штрихкод: <input type='text' name='barcode'>
+						<input value="Открыть сканер ШК" type="button" id="scaner" onclick="document.location='s/5'">
+						<br><input type='submit' value="Проверить">
+					</form>
+					<p><a href="https://ptarena.ru">← https://ptarena.ru</a></p>
+					<p>наговнокодил - <a href="eulle@ya.ru">@я</a></p>
+				</footer>
+			</div>
+		</div>
+
+		<div class = "context-menu">
+			<li>фамилия</li>
+			<li id = "armed" onclick="toggler1(id)">Поднять планку</li>
+			<li id = "unlock" onclick="toggler1(id)">Опустить планку</li>
+			<li id = "stndAlnOn" onclick="toggler1(id)">Включить режим "Только сертификаты"</li>
+                        <li id = "stndAlnOff" onclick="toggler1(id)">Выключить режим "Только сертификаты"</li>
+                        <li id = "certOn" onclick="toggler1(id)">Включить режим проверки сертификатов</li>
+                        <li id = "certOff" onclick="toggler1(id)">Выключить режим проверки сертификатов</li>
+                        <li id = "sync" onclick="toggler1(id)">Синхронизировать монитор</li>
+                        <li id = "dump" onclick="toggler1(id)">Дамп активных состояний</li>
+		</div>
+
+	</body>
+	
+	<script>
+		var animDiv = document.getElementById("connection");
+
+		const contextMenu = document.querySelector(".context-menu");
+		let currRow;
+		const showContextMenu = (event) => {
+			event.preventDefault();
+			contextMenu.style.top = event.pageY + "px";
+			contextMenu.style.left = event.pageX + "px";
+			contextMenu.classList.add("active");
+			if(event.target.nodeName == "TD")
+				{
+					const tr = document.querySelectorAll('tr');
+					tr.forEach((cur) => {cur.classList.remove('active')});
+					event.target.parentElement.classList.add('active');
+					currRow = document.querySelector('.tabs__link_active').innerText + ':' + event.target.parentElement.firstChild.innerText;
+					contextMenu.children[0].innerText = currRow;
+				}
+		}
+		
+		const closeContextMenu = (event) => {			
+			if(event.target.parentNode !== contextMenu)
+				{				
+					contextMenu.classList.remove("active");
+					const tr = document.querySelectorAll('tr');
+					tr.forEach((cur) => {cur.classList.remove('active')});
+				}		
+		}	
+		document.addEventListener("click", closeContextMenu);		
+
+		function toggler1(cmd) {
+                        socket.send(currRow + ';' + cmd + '\n');
+		}
+		function toggler(id) {
+			let tab = document.querySelector('.tabs').querySelector('.tabs__link_active').innerText + ':';
+			var b_id = id.split('_');
+			var table = document.getElementById("table_" + b_id[1]);
+			var cmd =';'+b_id[0];
+			for (let row of table.rows)
+			{
+				if ( row.cells[0])
+				{
+					socket.send(tab + row.cells[0].innerText+cmd);
+				}
+			}
+		}
+		function butt_handle(butt_id){
+		//console.log('butt_id :', butt_id);
+			if ( butt_id == "ironButton" )
+				socket.send("setIron");
+			if ( butt_id == "nrmlButton" )
+				socket.send("setNormal");
+			if ( butt_id == "ds_off" )
+				socket.send("::dblScnOff");
+			if ( butt_id == "ds_on" )
+				socket.send("::dblScnOn");
+			if ( butt_id == "ds_clear" )
+				socket.send("::dblScnClr");
+			if ( butt_id == "resetCounters" )
+				socket.send("rstCntrs");
+		}
+		function addTab( name ){
+			name_hexEncode = name.hexEncode();
+			var tabs__nav_v = document.getElementById("tabs__nav_id");
+			for (let element of tabs__nav_v.children)
+				if ( element.innerText == name )
+					return;
+			for (let element of tabs__nav_v.children)
+				element.className = "tabs__link";
+			tabs__nav_v.insertAdjacentHTML("beforeend", '<a class="tabs__link tabs__link_active" href="#E' + name_hexEncode + '_lnk">' + name + '</a>');
+			var tabs__content_v = document.getElementById("tabs__content_id");
+			for (let element of tabs__content_v.children) {
+				element.className = "tabs__pane";
+			}
+			var buttArm = '<button id="armed_' + name_hexEncode + '" onclick="toggler(id)" class="b-grn50">Поднять планку</button>';
+			var buttUnlck = '<button id="unlock_' + name_hexEncode + '" onclick="toggler(id)" class="b-orng50">Опустить планку</button>';
+			var tableID = "table_" + name_hexEncode;
+			var table = '<table id = "' + tableID + '" style ="right:50px;">'+
+			'<tr><th width="2%">номер</th><th width="4%" colspan =2>температура</th>'+
+			'<th width="30%">штрихкод</th><th width="8%" colspan =2>ip адрес</th></tr></table>';
+			tabs__content_v.insertAdjacentHTML("beforeend", '<div id="E' + name_hexEncode + '_lnk" class="tabs__pane tabs__pane_show">'
+			+buttArm+buttUnlck+table +'</div>' );
+			$tabs('.tabs');
+		}
+		function create_row(table, json){
+			var num = json.number.toString();
+			
+			var row_id = table.id + "_" + num;
+			var row = '<td width="2%" class ="td-black">' + num + '</td>' +
+			'<td width="2%"></td><td width="2%"></td>' +
+			'<td width="40%"></td>' +
+			'<td width="5%"></td><td width="5%"></td>';
+			var new_row = document.createElement("tr");
+			new_row.id = row_id;
+			new_row.innerHTML = row;
+			new_row.oncontextmenu = showContextMenu;
+
+			let type = "afterend";
+			if (table.rows.length == 1)
+				table.insertAdjacentElement("beforeend", new_row);
+			else {
+				let cRow; 
+				for ( var i = 1, currRow; currRow = table.rows[i]; i++) {
+					cRow=currRow;
+					if ( num < Number(currRow.cells[0].innerText) ){
+						type = "beforeBegin"
+						break;
+					}
+				} 
+				cRow.insertAdjacentElement(type, new_row);
+			}
+			return new_row;
+		}
+		function refresh_row(wicket_row, json){
+			var i= -11;
+			if ( json.rdr_type*1 == -1)
+				i= 2;
+			else if ( json.rdr_type*1 == 1 )
+				i= 1;
+			//else return;
+
+			var w_state = json.state;//*1;
+			console.log('state :', w_state);
+			
+			var classN = wicket_row.cells[3].className;
+
+			switch(w_state) {
+				case 'onMainConnected'   : classN = 'td-black'; break;
+				case 'onMainDisconnected':
+					wicket_row.cells[0].className = 'td-black';
+					wicket_row.cells[3].innerText = '';
+					classN = '';
+					break;
+			
+			
+				case 'onEntryConnected'   : wicket_row.cells[1].className = 'td-black'; break;
+				case 'onEntryDisconnected':
+					//wicket_row.cells[0].className = 'td-black';
+					wicket_row.cells[1].innerText = '';
+					wicket_row.cells[1].className = '';
+					break;
+				case 'onExitConnected'    : wicket_row.cells[2].className = 'td-black'; break;
+				case 'onExitDisconnected' :
+					//wicket_row.cells[0].className = 'td-black';
+					wicket_row.cells[2].innerText = '';
+					wicket_row.cells[2].className = '';
+				break;
+			
+			
+			
+			
+				case 'temp'          : wicket_row.cells[i].innerText = json.temp + " " + String.fromCharCode(176) + 'C'; break;
+				
+				
+				case 'onArmed'       : wicket_row.cells[0].className = 'td-green'; break;													//armed
+				case 'onUnlocked'    : wicket_row.cells[0].className = 'td-orange'; break;													//unlocked
+				case 'onReady'       : classN = 'td-black'; break;													//ready
+				case 'onPassEntry'   : classN = 'td-green'; break;																			//open entry
+				case 'onPassExit'    : classN = 'td-orange'; break;																		//open exit
+				case 'onEntryPassed' : classN = 'enter-ani'; break;																		//passed entry
+				case 'onExitPassed'  : classN = 'exit_ani'; var row_timer = setTimeout(retarder, 1000, wicket_row); break;					//passed exit
+				case 'onEntryDrop'   : classN = 'drop';     var row_timer = setTimeout(retarder, 1000, wicket_row); break;						//dropped
+				case 'onExitDrop'    : classN = 'drop';     var row_timer = setTimeout(retarder, 1000, wicket_row); break;						//dropped
+				case 'wrong'         : classN = 'td-red'; break;																			//wrong
+			}
+			wicket_row.cells[3].className = classN;
+			wicket_row.cells[3].innerText = json.body;
+		}
+		function readyRead( str ){
+			var json = JSON.parse(str);
+			var GateGroupCaption = json.caption;
+			var GateNumber = json.number.toString();
+			addTab(GateGroupCaption); ///если такой закладки еще нет - создадим
+
+			
+			var table = document.getElementById("table_" + GateGroupCaption.hexEncode());
+			if ( !table )
+				return false;
+			var current_count = document.getElementById("current_count"); 
+			current_count.innerText = json.current_count;
+			var total_count = document.getElementById("total_count"); 
+			total_count.innerText = json.total_count;
+			
+			//console.log('current_count :', json.current_count);
+			
+			var wicket_row = document.getElementById(table.id + "_" + GateNumber);
+			if(!wicket_row)	
+				wicket_row = create_row(table, json);
+			refresh_row(wicket_row, json);
+		}
+		function retarder(wicket_row) {
+			wicket_row.cells[3].className = 'td-black';
+		}
+		String.prototype.hexEncode = function(){
+			var hex, i;
+			var result = "";
+			for (i=0; i<this.length; i++) {
+				hex = this.charCodeAt(i).toString(16);
+				result += ("000"+hex).slice(-4);
+			}
+		return result
+		}
+		String.prototype.isEmpty = function () {
+			if (this.trim() == '') 
+				return true;
+			return false;
+		}
+
+
+
+///================== WebSocket handlers ===================================================================
+		var host = window.location.hostname;
+		const socket = new WebSocket('wss://' + host + ':27010');
+		socket.addEventListener('open', function (event) {
+			animDiv.style.webkitAnimationPlayState = 'running';//socket.send("refresh");
+			socket.send('getState');
+		});
+		socket.addEventListener('message', function (event) {readyRead( event.data );});
+		socket.addEventListener('close', function(event) {
+		animDiv.style.webkitAnimationPlayState = 'paused';
+			if (event.wasClean) {
+			//	alert(`[close] Соединение закрыто чисто, код=${event.code} причина=${event.reason}`);
+			} else {
+			// например, сервер убил процесс или сеть недоступна
+			// обычно в этом случае event.code 1006
+		//	alert(`[close] Соединение прервано, код=${event.code} причина=${event.reason}`);
+			}
+		});
+		socket.addEventListener('error', function(error) {//alert(`[error] ${error.message}`);
+		});
+		///===================== tabs engine =================================================================
+		var $tabs = function (target) {
+			var
+			_elemTabs = (typeof target === 'string' ? document.querySelector(target) : target),
+			_eventTabsShow,
+			_showTab = function (tabsLinkTarget) {
+			var tabsPaneTarget, tabsLinkActive, tabsPaneShow;
+			tabsPaneTarget = document.querySelector(tabsLinkTarget.getAttribute('href'));
+			tabsLinkActive = tabsLinkTarget.parentElement.querySelector('.tabs__link_active');
+			tabsPaneShow = tabsPaneTarget.parentElement.querySelector('.tabs__pane_show');
+			// если следующая вкладка равна активной, то завершаем работу
+			if (tabsLinkTarget === tabsLinkActive) {
+				return;
+			}
+			// удаляем классы у текущих активных элементов
+			if (tabsLinkActive !== null) {
+				tabsLinkActive.classList.remove('tabs__link_active');
+			}
+			if (tabsPaneShow !== null) {
+				tabsPaneShow.classList.remove('tabs__pane_show');
+			}
+			// добавляем классы к элементам (в завимости от выбранной вкладки)
+			tabsLinkTarget.classList.add('tabs__link_active');
+			tabsPaneTarget.classList.add('tabs__pane_show');
+			document.dispatchEvent(_eventTabsShow);
+			},
+			_switchTabTo = function (tabsLinkIndex) {
+				var tabsLinks = _elemTabs.querySelectorAll('.tabs__link');
+				if (tabsLinks.length > 0) {
+				if (tabsLinkIndex > tabsLinks.length) {
+					tabsLinkIndex = tabsLinks.length;
+				} else if (tabsLinkIndex < 1) {
+					tabsLinkIndex = 1;
+				}
+				_showTab(tabsLinks[tabsLinkIndex - 1]);
+			  }
+			};
+			_eventTabsShow = new CustomEvent('tab.show', { detail: _elemTabs });
+			_elemTabs.addEventListener('click', function (e) {
+				var tabsLinkTarget = e.target;
+				// завершаем выполнение функции, если кликнули не по ссылке
+				if (!tabsLinkTarget.classList.contains('tabs__link')) {
+					return;
+			}
+			// отменяем стандартное действие
+			e.preventDefault();
+			_showTab(tabsLinkTarget);
+		  });
+
+			return {
+				showTab: function (target) { _showTab(target); }, switchTabTo: function (index) { _switchTabTo(index); }
+		  }
+		};
+		///===================== tabs engine END =================================================================
+
+	</script>
+</html>
