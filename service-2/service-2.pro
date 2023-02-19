@@ -15,12 +15,15 @@ CONFIG += c++11
 CONFIG += console
 #CONFIG += exception
 
-GIT_VERSION = $$system(git --git-dir $$PWD/../.git --work-tree $$PWD/../ describe --always --tags)
-DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"
-VERSION = $$GIT_VERSION
-    win32 {
-        VERSION ~= s/-\d+-g[a-f0-9]{6,}//
-    }
+#GIT_VERSION = $$system(git --git-dir $$PWD/../.git --work-tree $$PWD/../ describe --always --tags)
+#DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"
+#VERSION = $$GIT_VERSION
+#    win32 {
+#        VERSION ~= s/-\d+-g[a-f0-9]{6,}//
+#    }
+
+
+
 #DEFINES += GIT_CURRENT_SHA1="\\\"$(shell git -C \""$$_PRO_FILE_PWD_"\" describe)\\\""
 #GIT_HASH="\\\"$$system(git -C \""$$_PRO_FILE_PWD_"\" rev-parse --short HEAD)\\\""
 #GIT_BRANCH="\\\"$$system(git -C \""$$_PRO_FILE_PWD_"\" rev-parse --abbrev-ref HEAD)\\\""

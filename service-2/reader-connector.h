@@ -9,6 +9,7 @@
 #include <QElapsedTimer>
 #include <QTimer>
 #include <QHostAddress>
+#include <QThread.h>
 
 #include "command.h"
 
@@ -17,7 +18,7 @@ class readerConnector:public QObject
 {
     Q_OBJECT
 public:
-    QTcpSocket socket;
+    QTcpSocket *socket;
     QString addr;
     readerConnector(int socketDescriptor, int reconnectInterval=20000);
     ~readerConnector();
@@ -29,11 +30,15 @@ public slots:
 
 private slots:
     void slot_readyRead();
+    void start();
 
 private:
-    QTimer p_reconnect_timer;
+    QThread *readerThread;
+    QTimer *p_reconnect_timer;
     QDataStream in;
     quint16 m_nNextBlockSize = 0;
+    int socketDescriptor;
+    int reconnectInterval;
 
 signals:
     void recieveMAC(readerConnector*, QString);
