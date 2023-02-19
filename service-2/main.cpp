@@ -62,8 +62,8 @@ int main(int argc, char *argv[])
 {
     //setwnd();
     QCoreApplication a(argc, argv);
-//    a.setApplicationName(QString("CAS Prometeus by eulle@ya.ru ver %1").arg(GIT_VERSION));
-//    qDebug() << QString("CAS Prometeus by eulle@ya.ru ver %1").arg(GIT_VERSION);
+    a.setApplicationName(QString("CAS Prometeus by eulle@ya.ru ver %1").arg(GIT_VERSION));
+    qDebug() << QString("CAS Prometeus by eulle@ya.ru ver %1").arg(GIT_VERSION);
 
     qRegisterMetaType<message>("message");
     //    qRegisterMetaType<gateState>("gateState");
