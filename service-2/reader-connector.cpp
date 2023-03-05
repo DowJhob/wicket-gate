@@ -20,12 +20,24 @@ void readerConnector::start()
                                 );
     in.setDevice(socket);
     in.setVersion(QDataStream::Qt_5_12);
-    connect(p_reconnect_timer,  &QTimer::timeout,            socket,             &QTcpSocket::abort);
-    connect(socket,             &QTcpSocket::disconnected,   p_reconnect_timer, &QTimer::stop);
-    connect(socket,             &QTcpSocket::disconnected,   this,               &readerConnector::readerDisconnected); //провайдим сигнал дальше (в мэйн)
-    connect(socket,             &QTcpSocket::disconnected,   this,               &readerConnector::deleteLater);
+    connect(p_reconnect_timer, &QTimer::timeout,           socket,            &QTcpSocket::abort,    Qt::DirectConnection );
+
+    connect(p_reconnect_timer, &QTimer::timeout,           this,              [this](){qDebug() << "QTimer::timeout" << addr;});
+
+    connect(socket,            &QTcpSocket::disconnected,  p_reconnect_timer, &QTimer::stop,    Qt::DirectConnection );
+    connect(socket,            &QTcpSocket::disconnected,  this,              &readerConnector::readerDisconnected); //провайдим сигнал дальше (в мэйн)
+    connect(socket,            &QTcpSocket::disconnected,  this,              &readerConnector::deleteLater);
     //connect(socket,             &QTcpSocket::disconnected,   socket,             &QTcpSocket::deleteLater);
-    connect(socket,             &QTcpSocket::readyRead,      this,               &readerConnector::slot_readyRead,    Qt::DirectConnection );
+    connect(socket,            &QTcpSocket::readyRead,     this,              &readerConnector::slot_readyRead,    Qt::DirectConnection );
+
+    connect(socket,            &QTcpSocket::disconnected,  this,              [this](){qDebug() << "QTcpSocket::disconnected" << addr;});
+    connect(socket,            &QTcpSocket::errorOccurred, this,              [this](QAbstractSocket::SocketError err){qDebug() << "QTcpSocket::errorOccurred" << addr << err;});
+//    connect(socket,            SIGNAL(error()),         this,          SLOT(test())    );
+    connect(socket,            &QTcpSocket::stateChanged,  this,              [this](QAbstractSocket::SocketState state){qDebug() << "QTcpSocket::stateChanged" << addr << state;});
+
+//    connect(socket,            &QTcpSocket::,  this,              [this](QAbstractSocket::SocketState state){qDebug() << "QTcpSocket::stateChanged" << addr << state;});
+
+
     p_reconnect_timer->setInterval(reconnectInterval);
     p_reconnect_timer->setSingleShot(true);
     p_reconnect_timer->start();
@@ -34,11 +46,18 @@ void readerConnector::start()
 //        send_to_socket(message( MachineState::undef, command::getMAC));} );
 }
 
+//void readerConnector::test(QAbstractSocket::SocketError err)
+//{
+//   qDebug() << "QTcpSocket::error" << addr << err;
+
+//}
+
 readerConnector::~readerConnector()
 {
-       socket->deleteLater();
-         p_reconnect_timer->deleteLater();
-readerThread->exit();
+    socket->deleteLater();
+    p_reconnect_timer->deleteLater();
+    readerThread->exit();
+    qDebug() << "readerConnector::~readerConnector" << addr;
 }
 
 void readerConnector::requestMAC()

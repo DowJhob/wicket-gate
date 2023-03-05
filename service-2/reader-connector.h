@@ -32,6 +32,8 @@ private slots:
     void slot_readyRead();
     void start();
 
+//    void test(QAbstractSocket::SocketError err);
+
 private:
     QThread *readerThread;
     QTimer *p_reconnect_timer;

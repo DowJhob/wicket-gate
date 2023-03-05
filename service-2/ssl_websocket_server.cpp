@@ -66,7 +66,7 @@ void SslWebSocketServer::send_to_socket(QWebSocket *pSocket, const QString &mess
 
 void SslWebSocketServer::send_to_widgets(QString message)
 {
-    for( QWebSocket *pSocket : m_clients)
+    for( QWebSocket *pSocket : qAsConst(m_clients))
         pSocket->sendTextMessage(message);
 }
 
@@ -77,7 +77,7 @@ void SslWebSocketServer::onNewConnection()
     QList<QNetworkCookie> cookiel =
             pSocket->request().header(QNetworkRequest::CookieHeader).value<QList<QNetworkCookie>>();
     QByteArray sessionid;
-    for ( QNetworkCookie qq: cookiel )
+    for ( const QNetworkCookie &qq: qAsConst(cookiel) )
         if (qq.name() == "sessionid")
         {
             sessionid = qq.value();
@@ -86,11 +86,11 @@ void SslWebSocketServer::onNewConnection()
     if ( sessionStore->getSession(sessionid).isNull() )
     {
         pSocket->close(QWebSocketProtocol::CloseCodePolicyViolated, "non autorize!");
-        logger("non autorize WebSoc client disconnected:" + pSocket->peerName() + pSocket->origin());
+        emit logger("non autorize WebSoc client disconnected:" + pSocket->peerName() + pSocket->origin());
         return;
     }
 
-    logger("WebSoc client connected:" + pSocket->peerName() + pSocket->origin());
+    emit logger("WebSoc client connected:" + pSocket->peerName() + pSocket->origin());
     connect(pSocket, &QWebSocket::textMessageReceived,   this, &SslWebSocketServer::widget_readyRead);
     connect(pSocket, &QWebSocket::disconnected,          this, &SslWebSocketServer::socketDisconnected);
     m_clients << pSocket;
@@ -100,7 +100,7 @@ void SslWebSocketServer::onNewConnection()
 
 void SslWebSocketServer::socketDisconnected()
 {
-    logger( "websoc widget Client disconnected");
+    emit logger( "websoc widget Client disconnected");
     QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
     if (pClient)
     {
@@ -111,5 +111,5 @@ void SslWebSocketServer::socketDisconnected()
 
 void SslWebSocketServer::onSslErrors(const QList<QSslError> &errors)
 {
-    qDebug() << "WebSoc Ssl errors occurred";
+    qDebug() << "WebSoc Ssl errors occurred" << errors;
 }
