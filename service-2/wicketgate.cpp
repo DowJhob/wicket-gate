@@ -249,7 +249,7 @@ void wicketGate::dbWorker(gateData *data, QString conn_str)
 
     connect(_db_worker, &db_worker::dbFail, machine, [this](){
         machine->submitEvent("dbTimeout");
-        wicketmodel->failDesc = f;
+        wicketmodel->failDesc = "База данных не отвечает";
     });
 
     connect(wicketmodel, &wicketModel::s_confirmPass, _db_worker, &db_worker::confirmPass);

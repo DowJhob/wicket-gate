@@ -5,6 +5,7 @@ db_worker::db_worker(QObject *parent, gateData *data, QString conn_str)://gate(g
     data(data),
     conn_str(conn_str)
 {
+    identity = "КПП: " + data->Caption + ", номер: " + QString::number(data->GateNumber);
     gate_ptr_to_string_for_db_connection_id = QString("0x%1").arg((quintptr)parent, QT_POINTER_SIZE * 2, 16, QChar('0'));
 
     QThread *db_worker_thread= new QThread;
