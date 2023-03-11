@@ -26,6 +26,7 @@ public:
     QString gate_ptr_to_string_for_db_connection_id;
 
 private:
+    QString identity = "КПП: " + data->Caption + ", номер: " + QString::number(data->GateNumber);
     gateData *data;
     //wicketFSM *gate;
     QString GateCaption{};
@@ -47,6 +48,8 @@ private slots:
 
 signals:
     void logger( QString );
+
+    void dbFail();
 
     void covidControlerOK(QString);
     void ticketControllerOK(QString);

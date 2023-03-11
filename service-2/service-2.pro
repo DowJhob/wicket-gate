@@ -82,6 +82,8 @@ SOURCES += \
     fsm/checkerModel.cpp \
     fsm/imodel.cpp \
     http/staticfilecontroller.cpp \
+    http_server.cpp \
+    logger.cpp \
     main.cpp \
     main_server.cpp \
     network.cpp \

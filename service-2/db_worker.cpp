@@ -92,7 +92,11 @@ void db_worker::checkTicket(int dir, QString barcode)
     check_ticket_query.bindValue(":check_result", check_result, QSql::Out);
     if (!check_ticket_query.exec())
     {
-        emit logger("check_ticket QUERY last error: " + check_ticket_query.lastError().text() );
+        emit logger(identity + "check_ticket QUERY last error: " + check_ticket_query.lastError().text() +
+                    " processing_time: " +
+                    QString::number(check_ticket_processing_time.nsecsElapsed()/1000000, '.', 3) + "ms");
+        emit dbFail();
+        return;
     }
     check_result = check_ticket_query.boundValue( ":check_result" ).toInt();
 
@@ -111,10 +115,8 @@ void db_worker::checkTicket(int dir, QString barcode)
     }
 
     double c = check_ticket_processing_time.nsecsElapsed();
-    emit logger("check_ticket " +
-                data->Caption + ", номер: " + QString::number(data->GateNumber) +
-                " direction: " +
-                QString::number(dir) + " " +
+    emit logger(identity + "check_ticket " +
+                " direction: " + QString::number(dir) + " " +
                 barcode + " processing_time: " +
                 QString::number(c/1000000, '.', 3) + "ms");
 }
@@ -134,16 +136,20 @@ void db_worker::confirmPass(int dir, QString barcode)
     confirm_pass_query.bindValue(":result", result, QSql::Out);
 
     if (!confirm_pass_query.exec())
-        emit logger("confirm_pass query last error - " + confirm_pass_query.lastError().text() );
+    {
+        emit logger(identity + "confirm_pass query last error - " + confirm_pass_query.lastError().text() +
+                    " processing_time: " +
+                    QString::number(check_ticket_processing_time.nsecsElapsed()/1000000, '.', 3) + "ms");
+        emit dbFail();
+        return;
+    }
 
     result = confirm_pass_query.boundValue( ":result" ).toInt();
     //emit logger("test confirm 2:" + QString::number(direction));
     emit count(result);
     double c = confirm_pass_processing_time.nsecsElapsed();
-    emit logger("confirm_pass " +
-                data->Caption + ", номер: " + QString::number(data->GateNumber)
-                + " direction: " +
-                QString::number(dir) + " " +
+    emit logger(identity + "confirm_pass " +
+                " direction: " + QString::number(dir) + " " +
                 barcode + " processing_time: " +
                 QString::number(c/1000000, '.', 3) + "ms");
 }

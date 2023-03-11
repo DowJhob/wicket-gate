@@ -100,8 +100,8 @@ void SslWebSocketServer::onNewConnection()
 
 void SslWebSocketServer::socketDisconnected()
 {
-    emit logger( "websoc widget Client disconnected");
     QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
+    emit logger( "websoc widget Client disconnected:" + pClient->peerName() + pClient->origin());
     if (pClient)
     {
         m_clients.removeAll(pClient);

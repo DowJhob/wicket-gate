@@ -246,6 +246,12 @@ void wicketGate::dbWorker(gateData *data, QString conn_str)
         machine->submitEvent("ticketFail");
         wicketmodel->failDesc = f;
     });
+
+    connect(_db_worker, &db_worker::dbFail, machine, [this](){
+        machine->submitEvent("dbTimeout");
+        wicketmodel->failDesc = f;
+    });
+
     connect(wicketmodel, &wicketModel::s_confirmPass, _db_worker, &db_worker::confirmPass);
     //connect(_db_worker, &db_worker::count, wicketmodel,  &wicketModel::count);
 }
