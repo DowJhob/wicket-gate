@@ -8,7 +8,7 @@ db_worker::db_worker(QObject *parent, gateData *data, QString conn_str)://gate(g
     identity = "КПП: " + data->Caption + ", номер: " + QString::number(data->GateNumber);
     gate_ptr_to_string_for_db_connection_id = QString("0x%1").arg((quintptr)parent, QT_POINTER_SIZE * 2, 16, QChar('0'));
 
-    QThread *db_worker_thread= new QThread;
+    QThread *db_worker_thread = new QThread;
 
     connect(db_worker_thread, &QThread::started, this, &db_worker::create_db_connect);
     connect(this, &QObject::destroyed, db_worker_thread, &QThread::quit);
@@ -61,7 +61,9 @@ void db_worker::checkCovidControler(QString barcode)
     query.bindValue(":cKey", barcode, QSql::In );
     if (!query.exec())
     {
-        emit logger("db_worker::checkCovidControler db error " + query.lastError().text() );
+        emit logger(identity + "db_worker::checkCovidControler db error " + query.lastError().text() +
+                    " processing_time: " +
+                    QString::number(check_ticket_processing_time.nsecsElapsed()/1000000, '.', 3) + "ms");
         return;
     }
 
