@@ -94,7 +94,7 @@ protected:
 private:
 
     /** Configuration settings */
-    const QSettings* settings;
+//    const QSettings *settings;
 
     /** Timer to remove expired sessions */
     QTimer cleanupTimer;
@@ -107,6 +107,20 @@ private:
 
     /** Used to synchronize threads */
     QMutex mutex;
+
+
+
+
+
+
+
+//    QByteArray cookieName;
+    QByteArray cookiePath;
+    QByteArray cookieComment;
+    QByteArray cookieDomain;
+
+
+
 
 private slots:
 

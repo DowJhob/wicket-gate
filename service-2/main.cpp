@@ -9,11 +9,11 @@
 #include <main_server.h>
 #include "logger.h"
 #include "network.h"
-#include "ssl_websocket_server.h"
+//#include "ssl_websocket_server.h"
 
 #include "http_server.h"
 
-#include "covidcertchecker.h"
+//#include "covidcertchecker.h"
 
 #define TCP_CLIENT_CONTROL_PORT 27005
 #define UDP_CLIENT_SEARCH_PORT 27006
