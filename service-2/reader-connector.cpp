@@ -3,51 +3,31 @@
 readerConnector::readerConnector(QTcpSocket* pSocket, int reconnectInterval):pSocket(pSocket),reconnectInterval(reconnectInterval)
 {
     readerThread = new QThread();
-    connect(readerThread,  &QThread::started,            this,             &readerConnector::start2);
+    connect(readerThread,  &QThread::started,            this,             &readerConnector::start);
     connect(readerThread,  &QThread::finished,   readerThread,             &QThread::deleteLater);
     moveToThread(readerThread);
-//    qDebug() << "start20";
-pSocket->setParent(0);
+    pSocket->setParent(0);
     pSocket->moveToThread(readerThread);
-//    qDebug() << "start200";
     readerThread->start();
-
-
 }
 
-void readerConnector::start2()
+void readerConnector::start()
 {
-//    qDebug() << "start2";
     p_reconnect_timer = new QTimer();
-
-//    qDebug() << "start21";
     in.setDevice(pSocket);
     in.setVersion(QDataStream::Qt_5_12);
-    connect(p_reconnect_timer, &QTimer::timeout,           pSocket,            &QTcpSocket::abort,    Qt::DirectConnection );
+    connect(p_reconnect_timer, &QTimer::timeout,           pSocket,           &QTcpSocket::abort,                   Qt::DirectConnection );
 
-    connect(p_reconnect_timer, &QTimer::timeout,           this,              [this](){qDebug() << "QTimer::timeout" << addr;});
+    connect(pSocket,           &QTcpSocket::disconnected,  p_reconnect_timer, &QTimer::stop,                        Qt::DirectConnection );
+    connect(pSocket,           &QTcpSocket::disconnected,  this,              &readerConnector::readerDisconnected, Qt::DirectConnection); //провайдим сигнал дальше (в мэйн)
+    connect(pSocket,           &QTcpSocket::disconnected,  this,              &readerConnector::deleteLater,        Qt::DirectConnection);
 
-    connect(pSocket,            &QTcpSocket::disconnected,  p_reconnect_timer, &QTimer::stop,    Qt::DirectConnection );
-    connect(pSocket,            &QTcpSocket::disconnected,  this,              &readerConnector::readerDisconnected); //провайдим сигнал дальше (в мэйн)
-    connect(pSocket,            &QTcpSocket::disconnected,  this,              &readerConnector::deleteLater);
-    //connect(socket,             &QTcpSocket::disconnected,   socket,             &QTcpSocket::deleteLater);
-    connect(pSocket,            &QTcpSocket::readyRead,     this,              &readerConnector::slot_readyRead,    Qt::DirectConnection );
+    connect(pSocket,           &QTcpSocket::readyRead,     this,              &readerConnector::slot_readyRead,     Qt::DirectConnection );
 
-    connect(pSocket,            &QTcpSocket::disconnected,  this,              [this](){qDebug() << "QTcpSocket::disconnected" << addr;});
-    connect(pSocket,            &QTcpSocket::errorOccurred, this,              [this](QAbstractSocket::SocketError err){qDebug() << "QTcpSocket::errorOccurred" << addr << err;});
-    //    connect(socket,            SIGNAL(error()),         this,          SLOT(test())    );
-    connect(pSocket,            &QTcpSocket::stateChanged,  this,              [this](QAbstractSocket::SocketState state){qDebug() << "QTcpSocket::stateChanged" << addr << state;});
-
-    //    connect(socket,            &QTcpSocket::,  this,              [this](QAbstractSocket::SocketState state){qDebug() << "QTcpSocket::stateChanged" << addr << state;});
-
-
+    addr = QHostAddress(pSocket->peerAddress().toIPv4Address()).toString();
     p_reconnect_timer->setInterval(reconnectInterval);
     p_reconnect_timer->setSingleShot(true);
     p_reconnect_timer->start();
-    addr = QHostAddress(pSocket->peerAddress().toIPv4Address()).toString();
-    //    connect(this,   &readerConnector::getMAC,     this,  [this](){
-    //        send_to_socket(message( MachineState::undef, command::getMAC));} );
-//    qDebug() << "start23";
 }
 
 readerConnector::~readerConnector()
@@ -65,7 +45,7 @@ void readerConnector::requestMAC()
 
 void readerConnector::send_to_socket(message message)
 {
-//    qDebug() << "==================== send_to_socket " << addr << this->socket;
+    //    qDebug() << "==================== send_to_socket " << addr << this->socket;
     //if(message.cmd != command::heartbeat)
     //    qDebug() << (int)message.cmd;
     if ( !pSocket->isValid() || pSocket->state() != QAbstractSocket::ConnectedState )

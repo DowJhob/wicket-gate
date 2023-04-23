@@ -29,9 +29,7 @@ public slots:
 
 private slots:
     void slot_readyRead();
-    void start2();
-
-//    void test(QAbstractSocket::SocketError err);
+    void start();
 
 private:
     QTcpSocket* pSocket;
@@ -46,6 +44,7 @@ signals:
     void recieveMAC(readerConnector*, QString);
     void read(message);
     void readerDisconnected();
+
 };
 
 #endif // READER_CONNECTOR_H

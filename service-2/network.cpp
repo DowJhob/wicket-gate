@@ -51,7 +51,7 @@ void network::newReaderConnection()
 
     readerConnector *reader = new readerConnector(soc, 10000);
 
-    emit newReaderConnected3(reader);
+    emit newReaderConnected(reader);
 }
 
 void network::slot_udp_search_readyRead()

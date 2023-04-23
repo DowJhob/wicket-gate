@@ -24,7 +24,6 @@ public:
     ~network();
 
 private:
-    QHash<int, QTcpSocket*> soc_list;                     // список сокетов связанных с турникетами
     QHash<QHostAddress, QByteArray> addrrr;               // датаграммы принятые от турникета
 
     int numConnections = 160;
@@ -32,8 +31,7 @@ private:
     quint16 wicketTCP_port = 27005;
     int reconnectInterval = 6000;
 
-//    QTcpServer  *main_wicket_ctrl_tcpServer;
-    QTcpServer  *main_wicket_ctrl_tcpServer;
+    QTcpServer *main_wicket_ctrl_tcpServer;
     QUdpSocket *main_wicket_search_udpSocket;
 
 public slots:
@@ -45,8 +43,7 @@ private slots:
 
 signals:
     void logger( QString );
-    void newReaderConnected2(int);
-    void newReaderConnected3(readerConnector*);
+    void newReaderConnected(readerConnector*);
 
 };
 
