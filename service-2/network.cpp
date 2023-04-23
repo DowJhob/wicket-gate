@@ -45,29 +45,13 @@ void network::start()
 
 }
 
-void network::checkMAC()
-{
-
-}
-
 void network::newReaderConnection()
 {
     QTcpSocket* soc = main_wicket_ctrl_tcpServer->nextPendingConnection();
-//    qDebug() << "hop" << soc;
+
     readerConnector *reader = new readerConnector(soc, 10000);
-//    connect(reader, &readerConnector::recieveMAC, this, &main_server::registerWicketReaderByMAC//, Qt::QueuedConnection
-//            );
-//    //reader->requestMAC();
-//    QMetaObject::invokeMethod(reader, "requestMAC");
-
-
 
     emit newReaderConnected3(reader);
-
-
-
-
-//    connect(soc, &QTcpSocket::readyRead, this, &network::checkMAC );
 }
 
 void network::slot_udp_search_readyRead()

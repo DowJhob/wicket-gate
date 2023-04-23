@@ -143,16 +143,7 @@ int main_server::register_gate_in_db(QString MAC, QString IP)
     return result;
 }
 
-void main_server::newReaderConnected2(int desc)
-{
-        readerConnector *reader = new readerConnector(desc, 10000);
-        connect(reader, &readerConnector::recieveMAC, this, &main_server::registerWicketReaderByMAC//, Qt::QueuedConnection
-            );
-        //reader->requestMAC();
-        QMetaObject::invokeMethod(reader, "requestMAC");
-}
-
-void main_server::newReaderConnected3(readerConnector *reader)
+void main_server::newReaderConnected(readerConnector *reader)
 {
         connect(reader, &readerConnector::recieveMAC, this, &main_server::registerWicketReaderByMAC//, Qt::QueuedConnection
                 );

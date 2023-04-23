@@ -93,7 +93,6 @@ SOURCES += \
     reader-connector.cpp \
     ssl_websocket_server.cpp \
     fsm/wicketModel.cpp \
-    tcpserver.cpp \
     wicketgate.cpp
 
 HEADERS += \
@@ -116,7 +115,6 @@ HEADERS += \
     ssl_websocket_server.h \
     fsm/scxmlexternmonitor2.h \
     fsm/wicketModel.h \
-    tcpserver.h \
     wicketgate.h
 
 

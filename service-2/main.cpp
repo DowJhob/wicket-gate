@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
     ///===================================================================================================================================================================
 //    QObject::connect(net,                &network::newReaderConnected2,  _main_server, &main_server::newReaderConnected2 );
 
-        QObject::connect(net,                &network::newReaderConnected3,  _main_server, &main_server::newReaderConnected3 );
+    QObject::connect(net,                &network::newReaderConnected3,  _main_server, &main_server::newReaderConnected );
 
     QObject::connect(&http,              &http_server::widget_readyRead, _main_server, &main_server::slot_widget_readyRead );
 

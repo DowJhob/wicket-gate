@@ -13,7 +13,7 @@
 
 #include <QSettings>
 
-#include "tcpserver.h"
+//#include "tcpserver.h"
 //#include <common_types.h>
 #include "reader-connector.h"
 
@@ -42,7 +42,6 @@ public slots:
 private slots:
     void newReaderConnection();
     void slot_udp_search_readyRead();
-    void checkMAC();
 
 signals:
     void logger( QString );
