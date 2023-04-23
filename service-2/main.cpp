@@ -101,7 +101,10 @@ int main(int argc, char *argv[])
 
     QObject::connect(_main_server,       &main_server::send_to_widgets2,  &http,       &http_server::send_to_widgets );
     ///===================================================================================================================================================================
-    QObject::connect(net,                &network::newReaderConnected2,  _main_server, &main_server::newReaderConnected2 );
+//    QObject::connect(net,                &network::newReaderConnected2,  _main_server, &main_server::newReaderConnected2 );
+
+        QObject::connect(net,                &network::newReaderConnected3,  _main_server, &main_server::newReaderConnected3 );
+
     QObject::connect(&http,              &http_server::widget_readyRead, _main_server, &main_server::slot_widget_readyRead );
 
     main_serverThread.start(QThread::HighestPriority);

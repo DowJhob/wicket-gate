@@ -152,9 +152,17 @@ void main_server::newReaderConnected2(int desc)
         QMetaObject::invokeMethod(reader, "requestMAC");
 }
 
+void main_server::newReaderConnected3(readerConnector *reader)
+{
+        connect(reader, &readerConnector::recieveMAC, this, &main_server::registerWicketReaderByMAC//, Qt::QueuedConnection
+                );
+        //reader->requestMAC();
+        QMetaObject::invokeMethod(reader, "requestMAC");
+}
+
 void main_server::registerWicketReaderByMAC(readerConnector* s, QString MAC)
 {
-    wicketGate *gate = GateByMAC.value(MAC, nullptr);          // Найдем гейт с таким маком в контейнере
+        wicketGate *gate = GateByMAC.value(MAC, nullptr);          // Найдем гейт с таким маком в контейнере
 
     if(gate != nullptr)
     {

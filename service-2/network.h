@@ -15,7 +15,7 @@
 
 #include "tcpserver.h"
 //#include <common_types.h>
-//#include "reader-connector.h"
+#include "reader-connector.h"
 
 class network : public QObject {
     Q_OBJECT
@@ -40,11 +40,14 @@ public slots:
     void start();
 
 private slots:
+    void newReaderConnection();
     void slot_udp_search_readyRead();
+    void checkMAC();
 
 signals:
     void logger( QString );
     void newReaderConnected2(int);
+    void newReaderConnected3(readerConnector*);
 
 };
 

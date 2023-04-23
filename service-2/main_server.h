@@ -37,6 +37,7 @@ public slots:
     void start();
 
     void newReaderConnected2(int desc);
+    void newReaderConnected3(readerConnector* reader);
 
     void registerWicketReaderByMAC(readerConnector *s, QString MAC);
 

@@ -18,9 +18,9 @@ class readerConnector:public QObject
 {
     Q_OBJECT
 public:
-    QTcpSocket *socket;
     QString addr;
     readerConnector(int socketDescriptor, int reconnectInterval=20000);
+    readerConnector(QTcpSocket* pSocket, int reconnectInterval=20000);
     ~readerConnector();
 
 public slots:
@@ -31,10 +31,12 @@ public slots:
 private slots:
     void slot_readyRead();
     void start();
+    void start2();
 
 //    void test(QAbstractSocket::SocketError err);
 
 private:
+    QTcpSocket* pSocket;
     QThread *readerThread;
     QTimer *p_reconnect_timer;
     QDataStream in;
