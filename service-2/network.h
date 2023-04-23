@@ -33,7 +33,7 @@ private:
     int reconnectInterval = 6000;
 
 //    QTcpServer  *main_wicket_ctrl_tcpServer;
-    TCPServer  *main_wicket_ctrl_tcpServer;
+    QTcpServer  *main_wicket_ctrl_tcpServer;
     QUdpSocket *main_wicket_search_udpSocket;
 
 public slots:

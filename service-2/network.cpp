@@ -28,7 +28,7 @@ void network::start()
 
     //=============== CLIENT TCP LISTENER =============================================
 //    main_wicket_ctrl_tcpServer = new QTcpServer();
-    main_wicket_ctrl_tcpServer = new TCPServer();
+    main_wicket_ctrl_tcpServer = new QTcpServer();
     main_wicket_ctrl_tcpServer->setMaxPendingConnections(numConnections);
 
 
@@ -52,7 +52,8 @@ void network::checkMAC()
 
 void network::newReaderConnection()
 {
-    auto soc = main_wicket_ctrl_tcpServer->nextPendingConnection();
+    QTcpSocket* soc = main_wicket_ctrl_tcpServer->nextPendingConnection();
+//    qDebug() << "hop" << soc;
     readerConnector *reader = new readerConnector(soc, 10000);
 //    connect(reader, &readerConnector::recieveMAC, this, &main_server::registerWicketReaderByMAC//, Qt::QueuedConnection
 //            );

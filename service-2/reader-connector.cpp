@@ -17,6 +17,10 @@ readerConnector::readerConnector(QTcpSocket* pSocket, int reconnectInterval):pSo
     connect(readerThread,  &QThread::started,            this,             &readerConnector::start2);
     connect(readerThread,  &QThread::finished,   readerThread,             &QThread::deleteLater);
     moveToThread(readerThread);
+//    qDebug() << "start20";
+pSocket->setParent(0);
+    pSocket->moveToThread(readerThread);
+//    qDebug() << "start200";
     readerThread->start();
 
 
@@ -24,10 +28,10 @@ readerConnector::readerConnector(QTcpSocket* pSocket, int reconnectInterval):pSo
 
 void readerConnector::start2()
 {
+//    qDebug() << "start2";
     p_reconnect_timer = new QTimer();
 
-    pSocket->moveToThread(readerThread);
-
+//    qDebug() << "start21";
     in.setDevice(pSocket);
     in.setVersion(QDataStream::Qt_5_12);
     connect(p_reconnect_timer, &QTimer::timeout,           pSocket,            &QTcpSocket::abort,    Qt::DirectConnection );
@@ -54,6 +58,7 @@ void readerConnector::start2()
     addr = QHostAddress(pSocket->peerAddress().toIPv4Address()).toString();
     //    connect(this,   &readerConnector::getMAC,     this,  [this](){
     //        send_to_socket(message( MachineState::undef, command::getMAC));} );
+//    qDebug() << "start23";
 }
 
 void readerConnector::start()
