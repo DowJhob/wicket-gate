@@ -36,7 +36,7 @@ void HttpListener::listen()
 {
     if (!pool)
     {
-        pool=new HttpConnectionHandlerPool(settings,requestHandler);
+        pool = new HttpConnectionHandlerPool(settings,requestHandler);
     }
     QString host = settings->value("host").toString();
     quint16 port=settings->value("port").toUInt() & 0xFFFF;

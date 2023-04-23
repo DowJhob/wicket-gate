@@ -14,10 +14,10 @@ using namespace stefanfrings;
 StaticFileController::StaticFileController(const QSettings *settings, QObject* parent)
     :HttpRequestHandler(parent)
 {
-    maxAge=settings->value("maxAge","60000").toInt();
-    encoding=settings->value("encoding","UTF-8").toString();
+    maxAge = settings->value("maxAge","60000").toInt();
+    encoding = settings->value("encoding","UTF-8").toString();
     docroot = QCoreApplication::applicationDirPath();
-    docroot +=settings->value("path",".").toString();
+    docroot += settings->value("path",".").toString();
 
 //    if(!(docroot.startsWith(":/") || docroot.startsWith("qrc://")))
 //    {
@@ -35,9 +35,9 @@ StaticFileController::StaticFileController(const QSettings *settings, QObject* p
 
 
 //    qDebug("StaticFileController: docroot=%s, encoding=%s, maxAge=%i",qPrintable(docroot),qPrintable(encoding),maxAge);
-    maxCachedFileSize=settings->value("maxCachedFileSize","65536").toInt();
+    maxCachedFileSize = settings->value("maxCachedFileSize","65536").toInt();
     cache.setMaxCost(settings->value("cacheSize","1000000").toInt());
-    cacheTimeout=settings->value("cacheTime","60000").toInt();
+    cacheTimeout = settings->value("cacheTime","60000").toInt();
 //    qDebug("StaticFileController: cache timeout=%i, size=%i",cacheTimeout,cache.maxCost());
 }
 

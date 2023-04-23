@@ -81,6 +81,9 @@ SOURCES += \
     db_worker.cpp \
     fsm/checkerModel.cpp \
     fsm/imodel.cpp \
+    http/db-query-processor.cpp \
+    http/logincontroller.cpp \
+    http/requestmapper.cpp \
     http/staticfilecontroller.cpp \
     http_server.cpp \
     logger.cpp \
