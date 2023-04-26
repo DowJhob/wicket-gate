@@ -81,6 +81,8 @@ protected:
     void incomingConnection(tSocketDescriptor socketDescriptor);
 
 private:
+    QString host;
+    quint16 port;
 
     /** Configuration settings for the HTTP server */
     const QSettings* settings;

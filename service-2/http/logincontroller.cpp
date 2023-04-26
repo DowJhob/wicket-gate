@@ -74,10 +74,10 @@ int LoginController::check_pass(QString user, QByteArray pass)
 }
 
 void LoginController::service(QByteArray sessionId, HttpRequest &request, HttpResponse &response) {
-    QByteArray username=request.getParameter("username");
-    QByteArray password=request.getParameter("password");
-    qDebug("username=%s",username.constData());
-    qDebug("password=%s",password.constData());
+    QByteArray username = request.getParameter("username");
+    QByteArray password = request.getParameter("password");
+    qDebug("username=%s", username.constData());
+    qDebug("password=%s", password.constData());
     //        response.setHeader("Content-Type", "text/html; charset=ISO-8859-1");
     HttpSession session = sessionStore->getSession(sessionId);
 
@@ -94,8 +94,8 @@ void LoginController::service(QByteArray sessionId, HttpRequest &request, HttpRe
     {
         if (check_pass(username, QByteArray::fromHex(password)) > 0) {
             //  response.write("Yes, correct");
-            session.set("username",username);
-            session.set("logintime",QTime::currentTime());
+            session.set("username", username);
+            session.set("logintime", QTime::currentTime());
             response.redirect("/");
             qDebug()<<"check_pass ";
         }

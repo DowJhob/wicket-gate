@@ -13,13 +13,17 @@ using namespace stefanfrings;
 HttpListener::HttpListener(const QSettings* settings, HttpRequestHandler* requestHandler, QObject *parent)
     : QTcpServer(parent)
 {
-    Q_ASSERT(settings!=nullptr);
-    Q_ASSERT(requestHandler!=nullptr);
-    pool=nullptr;
-    this->settings=settings;
-    this->requestHandler=requestHandler;
+    Q_ASSERT(settings != nullptr);
+    Q_ASSERT(requestHandler != nullptr);
+    pool = nullptr;
+    this->settings = settings;
+    this->requestHandler = requestHandler;
     // Reqister type of socketDescriptor for signal/slot handling
     qRegisterMetaType<tSocketDescriptor>("tSocketDescriptor");
+
+    host = settings->value("host").toString();
+    port=settings->value("port").toUInt() & 0xFFFF;
+
     // Start listening
     listen();
 }
@@ -38,8 +42,7 @@ void HttpListener::listen()
     {
         pool = new HttpConnectionHandlerPool(settings,requestHandler);
     }
-    QString host = settings->value("host").toString();
-    quint16 port=settings->value("port").toUInt() & 0xFFFF;
+
 //port = 8080;
     QTcpServer::listen(host.isEmpty() ? QHostAddress::Any : QHostAddress(host), port);
     if (!isListening())

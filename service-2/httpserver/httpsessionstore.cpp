@@ -13,10 +13,10 @@ HttpSessionStore::HttpSessionStore(const QSettings *settings, QObject* parent)
     :QObject(parent)
 {
 //    this->settings = settings;
-    connect(&cleanupTimer,SIGNAL(timeout()),this,SLOT(sessionTimerEvent()));
+    connect(&cleanupTimer, &QTimer::timeout, this, &HttpSessionStore::sessionTimerEvent);
     cleanupTimer.start(60000);
-    cookieName=settings->value("cookieName","sessionid").toByteArray();
-    expirationTime=settings->value("expirationTime",3600000).toInt();
+    cookieName = settings->value("cookieName","sessionid").toByteArray();
+    expirationTime = settings->value("expirationTime",3600000).toInt();
 
 
 
@@ -40,7 +40,7 @@ QByteArray HttpSessionStore::getSessionId(HttpRequest& request, HttpResponse& re
     // The session ID in the response has priority because this one will be used in the next request.
     mutex.lock();
     // Get the session ID from the response cookie
-    QByteArray sessionId=response.getCookies().value(cookieName).getValue();
+    QByteArray sessionId = response.getCookies().value(cookieName).getValue();
     if (sessionId.isEmpty())
     {
         // Get the session ID from the request cookie
@@ -61,7 +61,7 @@ QByteArray HttpSessionStore::getSessionId(HttpRequest& request, HttpResponse& re
 
 HttpSession HttpSessionStore::getSession(HttpRequest& request, HttpResponse& response, bool allowCreate)
 {
-    QByteArray sessionId=getSessionId(request,response);
+    QByteArray sessionId = getSessionId(request,response);
     mutex.lock();
     if (!sessionId.isEmpty())
     {
@@ -95,7 +95,7 @@ HttpSession HttpSessionStore::getSession(HttpRequest& request, HttpResponse& res
 HttpSession HttpSessionStore::getSession(const QByteArray id)
 {
     mutex.lock();
-    HttpSession session=sessions.value(id);
+    HttpSession session = sessions.value(id);
     mutex.unlock();
     session.setLastAccess();
     return session;
@@ -104,15 +104,15 @@ HttpSession HttpSessionStore::getSession(const QByteArray id)
 void HttpSessionStore::sessionTimerEvent()
 {
     mutex.lock();
-    qint64 now=QDateTime::currentMSecsSinceEpoch();
+    qint64 now = QDateTime::currentMSecsSinceEpoch();
     QMap<QByteArray,HttpSession>::iterator i = sessions.begin();
     while (i != sessions.end())
     {
         QMap<QByteArray,HttpSession>::iterator prev = i;
         ++i;
-        HttpSession session=prev.value();
-        qint64 lastAccess=session.getLastAccess();
-        if (now-lastAccess>expirationTime)
+        HttpSession session = prev.value();
+        qint64 lastAccess = session.getLastAccess();
+        if ((now - lastAccess) > expirationTime)
         {
 //            qDebug("HttpSessionStore: session %s expired",session.getId().data());
             sessions.erase(prev);
