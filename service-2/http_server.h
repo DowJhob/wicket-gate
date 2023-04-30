@@ -3,7 +3,6 @@
 
 #include <QObject>
 
-#include "httpserver/httplistener.h"
 #include "http/requestmapper.h"
 #include "ssl_websocket_server.h"
 

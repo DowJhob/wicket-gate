@@ -58,7 +58,7 @@ public:
       @param requestHandler Handler that will process each incoming HTTP request
       @param sslConfiguration SSL (HTTPS) will be used if not NULL
     */
-    HttpConnectionHandler(const QSettings* settings, HttpRequestHandler* requestHandler,
+    HttpConnectionHandler(connParam* connParam, HttpRequestHandler* requestHandler,
                           const QSslConfiguration* sslConfiguration=nullptr);
 
     /** Destructor */
@@ -73,7 +73,7 @@ public:
 private:
 
     /** Configuration settings */
-    const QSettings* settings;
+    connParam *connParam;
 
     /** TCP socket of the current connection  */
     QTcpSocket* socket;

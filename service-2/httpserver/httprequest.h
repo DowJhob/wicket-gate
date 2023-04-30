@@ -14,6 +14,7 @@
 #include <QSettings>
 #include <QTemporaryFile>
 #include <QUuid>
+#include "Settings.h"
 #include "httpglobal.h"
 
 namespace stefanfrings {
@@ -48,7 +49,7 @@ public:
       Constructor.
       @param settings Configuration settings
     */
-    HttpRequest(const QSettings* settings);
+    HttpRequest(connParam *connParam);
 
     /**
       Destructor.

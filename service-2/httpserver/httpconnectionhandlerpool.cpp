@@ -12,12 +12,15 @@ using namespace stefanfrings;
 HttpConnectionHandlerPool::HttpConnectionHandlerPool(const QSettings *settings, HttpRequestHandler *requestHandler)
     : QObject()
 {
-    Q_ASSERT(settings!=0);
-    this->settings=settings;
+    Q_ASSERT(settings != 0);
+    this->settings = settings;
 
 
-    maxConnectionHandlers = settings->value("maxThreads", 100).toInt();
-    maxIdleHandlers = settings->value("minThreads", 1).toInt();
+    connParam.readTimeout = settings->value("readTimeout", 10000).toInt();
+    connParam.maxConnectionHandlers = settings->value("maxThreads", 100).toInt();
+    connParam.maxIdleHandlers = settings->value("minThreads", 1).toInt();
+    connParam.maxSize=settings->value("maxRequestSize", "16000").toInt();
+    connParam.maxMultiPartSize = settings->value("maxMultiPartSize", "1000000").toInt();
 
 
 
@@ -59,9 +62,9 @@ HttpConnectionHandler* HttpConnectionHandlerPool::getConnectionHandler()
     // create a new handler, if necessary
     if (!freeHandler)
     {
-        if (pool.count() < maxConnectionHandlers)
+        if (pool.count() < connParam.maxConnectionHandlers)
         {
-            freeHandler = new HttpConnectionHandler(settings, requestHandler, sslConfiguration);
+            freeHandler = new HttpConnectionHandler(&connParam, requestHandler, sslConfiguration);
             freeHandler->setBusy();
             pool.append(freeHandler);
         }
@@ -69,7 +72,6 @@ HttpConnectionHandler* HttpConnectionHandlerPool::getConnectionHandler()
     mutex.unlock();
     return freeHandler;
 }
-
 
 void HttpConnectionHandlerPool::cleanup()
 {
@@ -79,7 +81,7 @@ void HttpConnectionHandlerPool::cleanup()
     {
         if (!handler->isBusy())
         {
-            if (++idleCounter > maxIdleHandlers)
+            if (++idleCounter > connParam.maxIdleHandlers)
             {
                 delete handler;
                 pool.removeOne(handler);
@@ -90,7 +92,6 @@ void HttpConnectionHandlerPool::cleanup()
     }
     mutex.unlock();
 }
-
 
 void HttpConnectionHandlerPool::loadSslConfig()
 {

@@ -8,36 +8,36 @@
 
 using namespace stefanfrings;
 
-HttpConnectionHandler::HttpConnectionHandler(const QSettings *settings, HttpRequestHandler *requestHandler, const QSslConfiguration* sslConfiguration)
-    : QObject()
+HttpConnectionHandler::HttpConnectionHandler(struct connParam *connParam, HttpRequestHandler *requestHandler, const QSslConfiguration* sslConfiguration)
+    : QObject(), connParam(connParam)
 {
-    Q_ASSERT(settings!=nullptr);
-    Q_ASSERT(requestHandler!=nullptr);
-    this->settings=settings;
-    this->requestHandler=requestHandler;
-    this->sslConfiguration=sslConfiguration;
-    currentRequest=nullptr;
-    busy=false;
+    Q_ASSERT(requestHandler != nullptr);
+    Q_ASSERT(connParam != nullptr);
+    this->requestHandler = requestHandler;
+    this->sslConfiguration = sslConfiguration;
+    currentRequest = nullptr;
+    busy = false;
 
     // execute signals in a new thread
     thread = new QThread();
     thread->start();
-//    qDebug("HttpConnectionHandler (%p): thread started", static_cast<void*>(this));
+    qDebug("HttpConnectionHandler (%p): thread started", static_cast<void*>(this));
     moveToThread(thread);
     readTimer.moveToThread(thread);
     readTimer.setSingleShot(true);
+    readTimer.setInterval(connParam->readTimeout);
 
     // Create TCP or SSL socket
     createSocket();    
     socket->moveToThread(thread);
 
     // Connect signals
-    connect(socket, SIGNAL(readyRead()), SLOT(read()));
-    connect(socket, SIGNAL(disconnected()), SLOT(disconnected()));
-    connect(&readTimer, SIGNAL(timeout()), SLOT(readTimeout()));
-    connect(thread, SIGNAL(finished()), this, SLOT(thread_done()));
+    connect(socket, &QTcpSocket::readyRead, this, &HttpConnectionHandler::read);
+    connect(socket, &QTcpSocket::disconnected, this, &HttpConnectionHandler::disconnected);
+    connect(&readTimer, &QTimer::timeout, this, &HttpConnectionHandler::readTimeout);
+    connect(thread, &QThread::finished, this, &HttpConnectionHandler::thread_done);
 
-//    qDebug("HttpConnectionHandler (%p): constructed", static_cast<void*>(this));
+    qDebug("HttpConnectionHandler (%p): constructed", static_cast<void*>(this));
 }
 
 
@@ -49,7 +49,6 @@ void HttpConnectionHandler::thread_done()
 //    qDebug("HttpConnectionHandler (%p): thread stopped", static_cast<void*>(this));
 }
 
-
 HttpConnectionHandler::~HttpConnectionHandler()
 {
     thread->quit();
@@ -58,40 +57,37 @@ HttpConnectionHandler::~HttpConnectionHandler()
 //    qDebug("HttpConnectionHandler (%p): destroyed", static_cast<void*>(this));
 }
 
-
 void HttpConnectionHandler::createSocket()
 {
     // If SSL is supported and configured, then create an instance of QSslSocket
     #ifndef QT_NO_SSL
         if (sslConfiguration)
         {
-            QSslSocket* sslSocket=new QSslSocket();
+            QSslSocket* sslSocket = new QSslSocket();
             sslSocket->setSslConfiguration(*sslConfiguration);
-            socket=sslSocket;
-//            qDebug("HttpConnectionHandler (%p): SSL is enabled", static_cast<void*>(this));
+            socket = sslSocket;
+            qDebug("HttpConnectionHandler (%p): SSL is enabled", static_cast<void*>(this));
             return;
         }
     #endif
     // else create an instance of QTcpSocket
-    socket=new QTcpSocket();
+    socket = new QTcpSocket();
 }
 
-
-void HttpConnectionHandler::handleConnection(tSocketDescriptor socketDescriptor)
+void HttpConnectionHandler::handleConnection(const tSocketDescriptor socketDescriptor)
 {
-//    qDebug("HttpConnectionHandler (%p): handle new connection", static_cast<void*>(this));
+    qDebug("HttpConnectionHandler (%p): handle new connection", static_cast<void*>(this));
     busy = true;
-    Q_ASSERT(socket->isOpen()==false); // if not, then the handler is already busy
+    Q_ASSERT(socket->isOpen() == false); // if not, then the handler is already busy
 
     //UGLY workaround - we need to clear writebuffer before reusing this socket
     //https://bugreports.qt-project.org/browse/QTBUG-28914
-    socket->connectToHost("",0);
+    socket->connectToHost("", 0);
     socket->abort();
 
     if (!socket->setSocketDescriptor(socketDescriptor))
     {
-        qCritical("HttpConnectionHandler (%p): cannot initialize socket: %s",
-                  static_cast<void*>(this),qPrintable(socket->errorString()));
+        qCritical("HttpConnectionHandler (%p): cannot initialize socket: %s", static_cast<void*>(this), qPrintable(socket->errorString()));
         return;
     }
 
@@ -99,19 +95,17 @@ void HttpConnectionHandler::handleConnection(tSocketDescriptor socketDescriptor)
         // Switch on encryption, if SSL is configured
         if (sslConfiguration)
         {
-//            qDebug("HttpConnectionHandler (%p): Starting encryption", static_cast<void*>(this));
+            qDebug("HttpConnectionHandler (%p): Starting encryption", static_cast<void*>(this));
             (static_cast<QSslSocket*>(socket))->startServerEncryption();
         }
     #endif
 
     // Start timer for read timeout
-    int readTimeout=settings->value("readTimeout",10000).toInt();
-    readTimer.start(readTimeout);
+    readTimer.start();
     // delete previous request
     delete currentRequest;
-    currentRequest=nullptr;
+    currentRequest = nullptr;
 }
-
 
 bool HttpConnectionHandler::isBusy()
 {
@@ -123,7 +117,6 @@ void HttpConnectionHandler::setBusy()
     this->busy = true;
 }
 
-
 void HttpConnectionHandler::readTimeout()
 {
 //    qDebug("HttpConnectionHandler (%p): read timeout occured",static_cast<void*>(this));
@@ -131,12 +124,12 @@ void HttpConnectionHandler::readTimeout()
     //Commented out because QWebView cannot handle this.
     //socket->write("HTTP/1.1 408 request timeout\r\nConnection: close\r\n\r\n408 request timeout\r\n");
 
-    while(socket->bytesToWrite()) socket->waitForBytesWritten();
+    while(socket->bytesToWrite())
+        socket->waitForBytesWritten();
     socket->disconnectFromHost();
     delete currentRequest;
-    currentRequest=nullptr;
+    currentRequest = nullptr;
 }
-
 
 void HttpConnectionHandler::disconnected()
 {
@@ -152,25 +145,24 @@ void HttpConnectionHandler::read()
     while (socket->bytesAvailable())
     {
         #ifdef SUPERVERBOSE
-//            qDebug("HttpConnectionHandler (%p): read input",static_cast<void*>(this));
+            qDebug("HttpConnectionHandler (%p): read input",static_cast<void*>(this));
         #endif
 
         // Create new HttpRequest object if necessary
         if (!currentRequest)
         {
-            currentRequest=new HttpRequest(settings);
+            currentRequest = new HttpRequest(connParam);
         }
 
         // Collect data for the request object
-        while (socket->bytesAvailable() && currentRequest->getStatus()!=HttpRequest::complete && currentRequest->getStatus()!=HttpRequest::abort)
+        while (socket->bytesAvailable() && currentRequest->getStatus() != HttpRequest::complete && currentRequest->getStatus() != HttpRequest::abort)
         {
             currentRequest->readFromSocket(socket);
-            if (currentRequest->getStatus()==HttpRequest::waitForBody)
+            if (currentRequest->getStatus() == HttpRequest::waitForBody)
             {
                 // Restart timer for read timeout, otherwise it would
                 // expire during large file uploads.
-                int readTimeout=settings->value("readTimeout",10000).toInt();
-                readTimer.start(readTimeout);
+                readTimer.start();
             }
         }
 
@@ -181,19 +173,19 @@ void HttpConnectionHandler::read()
             while(socket->bytesToWrite()) socket->waitForBytesWritten();
             socket->disconnectFromHost();
             delete currentRequest;
-            currentRequest=nullptr;
+            currentRequest = nullptr;
             return;
         }
 
         // If the request is complete, let the request mapper dispatch it
-        if (currentRequest->getStatus()==HttpRequest::complete)
+        if (currentRequest->getStatus() == HttpRequest::complete)
         {
             readTimer.stop();
 //            qDebug("HttpConnectionHandler (%p): received request",static_cast<void*>(this));
 
             // Copy the Connection:close header to the response
             HttpResponse response(socket);
-            bool closeConnection=QString::compare(currentRequest->getHeader("Connection"),"close",Qt::CaseInsensitive)==0;
+            bool closeConnection = QString::compare(currentRequest->getHeader("Connection"), "close", Qt::CaseInsensitive) == 0;
             if (closeConnection)
             {
                 response.setHeader("Connection","close");
@@ -203,11 +195,11 @@ void HttpConnectionHandler::read()
             // This ensures that the HttpResponse does not activate chunked mode, which is not spported by HTTP 1.0.
             else
             {
-                bool http1_0=QString::compare(currentRequest->getVersion(),"HTTP/1.0",Qt::CaseInsensitive)==0;
+                bool http1_0 = QString::compare(currentRequest->getVersion(), "HTTP/1.0", Qt::CaseInsensitive) == 0;
                 if (http1_0)
                 {
-                    closeConnection=true;
-                    response.setHeader("Connection","close");
+                    closeConnection = true;
+                    response.setHeader("Connection", "close");
                 }
             }
 
@@ -225,7 +217,7 @@ void HttpConnectionHandler::read()
             // Finalize sending the response if not already done
             if (!response.hasSentLastPart())
             {
-                response.write(QByteArray(),true);
+                response.write(QByteArray(), true);
             }
 
 //            qDebug("HttpConnectionHandler (%p): finished request",static_cast<void*>(this));
@@ -234,10 +226,10 @@ void HttpConnectionHandler::read()
             if (!closeConnection)
             {
                 // Maybe the request handler or mapper added a Connection:close header in the meantime
-                bool closeResponse=QString::compare(response.getHeaders().value("Connection"),"close",Qt::CaseInsensitive)==0;
-                if (closeResponse==true)
+                bool closeResponse=QString::compare(response.getHeaders().value("Connection"), "close", Qt::CaseInsensitive) == 0;
+                if (closeResponse == true)
                 {
-                    closeConnection=true;
+                    closeConnection = true;
                 }
                 else
                 {
@@ -246,10 +238,10 @@ void HttpConnectionHandler::read()
                     bool hasContentLength=response.getHeaders().contains("Content-Length");
                     if (!hasContentLength)
                     {
-                        bool hasChunkedMode=QString::compare(response.getHeaders().value("Transfer-Encoding"),"chunked",Qt::CaseInsensitive)==0;
+                        bool hasChunkedMode = QString::compare(response.getHeaders().value("Transfer-Encoding"),"chunked", Qt::CaseInsensitive) == 0;
                         if (!hasChunkedMode)
                         {
-                            closeConnection=true;
+                            closeConnection = true;
                         }
                     }
                 }
@@ -264,11 +256,10 @@ void HttpConnectionHandler::read()
             else
             {
                 // Start timer for next request
-                int readTimeout=settings->value("readTimeout",10000).toInt();
-                readTimer.start(readTimeout);
+                readTimer.start();
             }
             delete currentRequest;
-            currentRequest=nullptr;
+            currentRequest = nullptr;
         }
     }
 }

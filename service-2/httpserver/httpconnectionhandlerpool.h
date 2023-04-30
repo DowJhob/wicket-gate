@@ -6,6 +6,7 @@
 #include <QObject>
 #include <QMutex>
 #include <QDir>
+#include "Settings.h"
 #include "httpglobal.h"
 #include "httpconnectionhandler.h"
 
@@ -66,9 +67,7 @@ public:
     HttpConnectionHandler* getConnectionHandler();
 
 private:
-
-    int maxConnectionHandlers;
-    int maxIdleHandlers;
+    connParam connParam;
 
 
     QSettings::Format format;

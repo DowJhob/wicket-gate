@@ -10,14 +10,15 @@
 
 using namespace stefanfrings;
 
-HttpRequest::HttpRequest(const QSettings* settings)
+HttpRequest::HttpRequest(connParam *connParam)
 {
-    status=waitForRequest;
-    currentSize=0;
-    expectedBodySize=0;
-    maxSize=settings->value("maxRequestSize","16000").toInt();
-    maxMultiPartSize=settings->value("maxMultiPartSize","1000000").toInt();
-    tempFile=nullptr;
+    Q_ASSERT(connParam != nullptr);
+    status = waitForRequest;
+    currentSize = 0;
+    expectedBodySize = 0;
+    maxSize = connParam->maxSize;
+    maxMultiPartSize = connParam->maxMultiPartSize;
+    tempFile = nullptr;
 }
 
 
@@ -26,7 +27,7 @@ void HttpRequest::readRequest(QTcpSocket* socket)
     #ifdef SUPERVERBOSE
         qDebug("HttpRequest: read request");
     #endif
-    int toRead=maxSize-currentSize+1; // allow one byte more to be able to detect overflow
+    int toRead = maxSize - currentSize + 1; // allow one byte more to be able to detect overflow
     QByteArray dataRead = socket->readLine(toRead);
     currentSize += dataRead.size();
     lineBuffer.append(dataRead);
@@ -41,20 +42,20 @@ void HttpRequest::readRequest(QTcpSocket* socket)
     lineBuffer.clear();
     if (!newData.isEmpty())
     {
-//        qDebug("HttpRequest: from %s: %s",qPrintable(socket->peerAddress().toString()),newData.data());
-        QList<QByteArray> list=newData.split(' ');
+        qDebug("HttpRequest: from %s: %s",qPrintable(socket->peerAddress().toString()),newData.data());
+        QList<QByteArray> list = newData.split(' ');
         if (list.count()!=3 || !list.at(2).contains("HTTP"))
         {
             qWarning("HttpRequest: received broken HTTP request, invalid first line");
-            status=abort;
+            status = abort;
         }
         else
         {
-            method=list.at(0).trimmed();
-            path=list.at(1);
-            version=list.at(2);
+            method = list.at(0).trimmed();
+            path = list.at(1);
+            version = list.at(2);
             peerAddress = socket->peerAddress();
-            status=waitForHeader;
+            status = waitForHeader;
         }
     }
 }

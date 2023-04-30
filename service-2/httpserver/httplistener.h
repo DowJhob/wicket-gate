@@ -14,6 +14,8 @@
 #include "httpconnectionhandlerpool.h"
 #include "httprequesthandler.h"
 
+//#define SUPERVERBOSE
+
 namespace stefanfrings {
 
 /**
@@ -100,7 +102,7 @@ signals:
       @param socketDescriptor references the accepted connection.
     */
 
-    void handleConnection(tSocketDescriptor socketDescriptor);
+    void handleConnection(stefanfrings::tSocketDescriptor socketDescriptor);
 
 };
 
